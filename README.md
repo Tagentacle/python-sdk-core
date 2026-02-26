@@ -81,6 +81,28 @@ INACTIVE/ACTIVE → shutdown() → FINALIZED
 This is a Tagentacle **library pkg** (`type = "library"` in `tagentacle.toml`).
 Other pkgs declare dependency on it via `[dependencies] tagentacle = ["tagentacle_py_core"]`.
 
+## Package Naming Convention
+
+Tagentacle borrows the multi-layer naming pattern from **ROS 2**, adapted for the Python/pip ecosystem:
+
+| Layer | Convention | Example | ROS 2 Analogy |
+|-------|-----------|---------|---------------|
+| **Repo directory** | `kebab-case` | `python-sdk-core/` | ROS 2 uses `snake_case`; we follow GitHub convention |
+| **`tagentacle.toml` name** | `snake_case` | `tagentacle_py_core` | `package.xml` `<name>` |
+| **Python module dir** | `snake_case` (= toml name) | `tagentacle_py_core/` | `import turtlesim` |
+| **`pyproject.toml` name** (pip) | `kebab-case` | `tagentacle-py-core` | `ros-jazzy-turtlesim` (apt) |
+
+**Golden rules:**
+
+1. **`tagentacle.toml` name = Python module directory = import name.**  
+   If `name = "example_agent"`, the module lives in `example_agent/` and you write `import example_agent`.
+
+2. **`-` ↔ `_` mapping** between pip name and import name (same as pip convention and ROS 2 apt↔pkg mapping).  
+   `pip install example-agent` → `import example_agent`.
+
+3. **Repo directory** uses kebab-case for GitHub URL readability.  
+   The repo `example-agent/` contains the package `example_agent`.
+
 ## License
 
 MIT

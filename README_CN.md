@@ -81,6 +81,28 @@ INACTIVE/ACTIVE → shutdown() → FINALIZED
 这是一个 Tagentacle **library pkg**（`tagentacle.toml` 中 `type = "library"`）。
 其他 pkg 通过 `[dependencies] tagentacle = ["tagentacle_py_core"]` 声明依赖。
 
+## 包命名规范
+
+Tagentacle 借鉴了 **ROS 2** 的多层命名模式，并适配 Python/pip 生态：
+
+| 层级 | 约定 | 示例 | ROS 2 类比 |
+|------|------|------|------------|
+| **Repo 目录** | `kebab-case` | `python-sdk-core/` | ROS 2 用 `snake_case`；我们遵循 GitHub 惯例 |
+| **`tagentacle.toml` name** | `snake_case` | `tagentacle_py_core` | `package.xml` `<name>` |
+| **Python module 目录** | `snake_case`（= toml name） | `tagentacle_py_core/` | `import turtlesim` |
+| **`pyproject.toml` name**（pip） | `kebab-case` | `tagentacle-py-core` | `ros-jazzy-turtlesim`（apt） |
+
+**黄金法则：**
+
+1. **`tagentacle.toml` name = Python module 目录 = import 名。**  
+   若 `name = "example_agent"`，则模块位于 `example_agent/`，代码中写 `import example_agent`。
+
+2. **`-` ↔ `_` 映射**：pip 包名与 import 名之间的转换（同 pip 惯例 & ROS 2 apt↔pkg 映射）。  
+   `pip install example-agent` → `import example_agent`。
+
+3. **Repo 目录**使用 kebab-case 以提高 GitHub URL 可读性。  
+   仓库 `example-agent/` 包含包 `example_agent`。
+
 ## 许可证
 
 MIT
