@@ -92,11 +92,14 @@ class Node:
         return self._secrets
 
     async def connect(self):
-        """Connect to Tagentacle Daemon bus and register existing subscriptions and services."""
+        """Connect to Tagentacle Daemon bus, send Register handshake, and register existing subscriptions and services."""
         self.logger.info(f"Connecting to Tagentacle Daemon at {self.host}:{self.port}...")
         self.reader, self.writer = await asyncio.open_connection(self.host, self.port, limit=4 * 1024 * 1024)  # 4 MB buffer for large messages
         self._connected = True
         self.logger.info(f"Node '{self.node_id}' connected.")
+
+        # Send Register handshake first
+        await self._send_json({"op": "register", "node_id": self.node_id})
         
         # Batch register pre-defined subscriptions
         for topic in self.subscribers.keys():
@@ -242,6 +245,13 @@ class Node:
                 future = self.pending_requests[request_id]
                 if not future.done():
                     future.set_result(msg.get("payload"))
+        
+        elif op == "ping":
+            # Respond to Daemon heartbeat
+            await self._send_json({"op": "pong", "node_id": self.node_id})
+        
+        elif op == "register_ack":
+            self.logger.debug(f"Register acknowledged by Daemon.")
 
     async def _handle_service_call(self, msg: Dict):
         """Handle inbound service requests."""
